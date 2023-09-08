@@ -163,11 +163,8 @@ class FramesMonitor extends EventEmitter {
             try {
                 // ChildProcess kill method for some corner cases can throw an exception
 
-                if (!this._cp) {
-                    return resolve();
-                } else {
-                    this._cp.kill('SIGTERM');
-                }
+                this._cp.kill('SIGTERM');
+
 
                 if (isError) {
                     return;
@@ -177,7 +174,11 @@ class FramesMonitor extends EventEmitter {
                 // it's just means that signal was received, but child process can ignore it, so we will set guard
                 // and clean it in the exit event handler.
                 exitProcessGuard = setTimeout(() => {
-                    this._cp.kill('SIGKILL');
+                    if (!this._cp) {
+                        return resolve();
+                    } else {
+                        this._cp.kill('SIGTERM');
+                    }
                 }, this._config.exitProcessGuardTimeoutInMs);
             } catch (err) {
                 // platform does not support SIGTERM (probably SIGKILL also)

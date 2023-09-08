@@ -162,7 +162,12 @@ class FramesMonitor extends EventEmitter {
 
             try {
                 // ChildProcess kill method for some corner cases can throw an exception
-                this._cp.kill('SIGTERM');
+
+                if (!this._cp) {
+                    return resolve();
+                } else {
+                    this._cp.kill('SIGTERM');
+                }
 
                 if (isError) {
                     return;
